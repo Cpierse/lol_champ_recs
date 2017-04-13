@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<style>
+    .appsize { width: 500px }
+</style>
+
+<link rel="stylesheet" href="static/basic.css" type="text/css">
+
+<link href=
+"https://bootswatch.com/cyborg/bootstrap.min.css"
+rel="stylesheet">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+
+
+<!--
+<nav class="navbar navbar-default" role="navigation">
+<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+       {% for text, url in some_sequence %}
+       <li><a href="/{{url}}">{{ text }}</a></li>
+       {% endfor %}
+       </ul>
+</div>
+</nav>
+-->
+
+
+<div class="jumbotron text-center">
+  <h1>Champion Recommendations</h1>
+  <h5> Calculated from the ranked matches of over 100k gold-tier summoners </h5>
+</div>
+
+
+
+<div class="container" style="text-align: center; width:500px; padding: 0 0 0 0">
+<!-- Drop down boxes for rec choice-->
+<p style="text-align:center;">
+Enter your main role and champion
+<form method="POST"  action="{{ url_for('index') }}">
+<select name="role_req">
+  {% for choice in form["role"].choices %}
+	  <option value="{{ choice[1] }}">{{ choice[0] }}</option>
+  {% endfor %}
+</select>
+<select name="champ_req">
+  {% for choice in form["champ"].choices %}
+	  <option value="{{ choice[1] }}">{{ choice[0] }}</option>
+  {% endfor %}
+</select>
+<input type=submit value='Get Recommendations!'></form>
+</p>
+
+
+
+
+
+<div class="center-block" style="width:500px; padding: 0 0 0 0;">
+<!-- If a selection has been made above, assemble the results -->
+{% if result != None %}
+		<div class="row" style="text-align: center;">
+			<div class="col-xs-12" style="text-align:center;">
+				<h5>{{  request.form['role_req'].title() + ' ' + requested_champ + ' mains would recommend:' }}</h5>
+			</div>
+
+		 </div>
+	{% for role in ['TOP','JUNGLE','MID','SUPPORT','ADC'] %}
+		<!-- Print results for each role -->
+		<div class="row" style="text-align: center;">
+		  <div class="col-xs-12" style="text-align:center;">
+			<!-- {{role}} -->
+			<div class="row" style="text-align: center; padding: 0 0 0 0">
+				<div class="col-xs-3">
+				{%if role=='TOP'%}
+					<img src="static/images/Top_icon.png" width="120px" align="middle"\>
+				{%elif role=='JUNGLE'%}
+					<img src="static/images/Jungler_icon.png" width="120px" align="middle"\>
+				{%elif role=='MID'%}
+					<img src="static/images/Middle_icon.png" width="120px" align="middle"\>
+				{%elif role=='SUPPORT'%}
+					<img src="static/images/Support_icon.png" width="120px" align="middle"\>
+				{%elif role=='ADC'%}
+					<img src="static/images/Bottom_icon.png" width="120px" align="middle"\>
+				{%endif%}
+				<p style="text-align:center; margin-left: 20px;"> N = {{result[role]['N']}} </p>
+				</div>
+				{% for idx in ['1','2','3'] %}
+					<div class="col-xs-3">
+					<!-- {{result[role][idx]['champ']}} -->
+					{% if result[role][idx]['score'] > 0 %}
+						<!--<img src="{{result[role][idx]['img_loc']}}" align="middle" width="120px"\>-->
+						<img src="{{result[role][idx]['img_loc_url']}}" align="middle" width="120px"\>
+						<div style="text-align: center;">
+							{% if result[role][idx]['rating']>=1.0 %}
+								<img src="static/images/star_1.png" height="16px" style="display: inline-block; margin-left: 20px;"\>
+							{% elif result[role][idx]['rating']==0.5 %}
+								<img src="static/images/star_0.5.png" height="16px" style="display: inline-block; margin-left: 20px;"\>
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+							{% elif result[role][idx]['rating']==0.0 %}
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+							{% endif %}
+							{% if result[role][idx]['rating']==1.0 %}
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+							{% elif result[role][idx]['rating']==1.5 %}
+								<img src="static/images/star_0.5.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+							{% elif result[role][idx]['rating']==2.0 %}
+								<img src="static/images/star_1.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_0.png" height="16px" display="inline-block;"\>
+							{% elif result[role][idx]['rating']==2.5 %}
+								<img src="static/images/star_1.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_0.5.png" height="16px" display="inline-block;"\>
+							{% elif result[role][idx]['rating']==3.0 %}
+								<img src="static/images/star_1.png" height="16px" display="inline-block;"\>
+								<img src="static/images/star_1.png" height="16px" display="inline-block;"\>
+							{% endif %}
+						</div>
+					{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		  </div>
+		</div>
+	
+	{% endfor %}
+{% endif %}
+</div>
+</div>
+
+
+{% if result != None %}
+<div style="padding: 10px 10px 10px 10px;   color: inherit;  background-color: #151515;" >
+  <h4> Questions:</h4>
+  <h6> How are the recommendations calculated? </h6>
+<!--   <p>
+  If you enjoy playing champion X in role A (your selection), the algorithm will recommend you the top 3 champions in role B based on how many gold players play BOTH champion X in role A more than average and recommended champions in role B more than average. For the specifics, check out this <a href="http://cpierse.physics.ucsd.edu/champ_recs_post/"> post</a>.
+  </p> -->
+  <p>
+  The algorithm is pretty straightforward &mdash; if a player plays champion X in role A (your selection) more than average and champion Y in role B (a possible recommendation) more than average, they would "recommend" champion Y to you. The three champions with the highest number of recomendations in each role are shown. For the specifics, check out this <a href="http://cpierse.physics.ucsd.edu/champ_recs_post/"> post</a>.
+  </p>
+  <h6> What is N? And what about the stars? </h6>
+  <p>
+  N is the number of players in the dataset who play enough games to make a recommendation for this role. The stars reflect how highly a specific champion is recommended to you for that role. A 3-star recommendation is an outstanding recommendation that is  statistically better than a 1- or 2-star recommendation. A 0-star recommendation still has a number of players recommending that champion, but the recommendation may not be statistically significant. 
+  </p>
+<!--   <h4> How did you collect the data? </h4>
+  <p>
+  Riot has a publicly available API that any developer can use to access game data. I found Gold-ranked players and recorded data from all of their 2016 ranked matches.
+  </p> -->
+  <h6> Why use data from Gold-ranked players? </h6>
+  <p>
+  Players at different ranks tend to choose different champions. Gold seems to offer a good balance of in-game skill (top 20% of all players) and off-meta champions (who plays Urgot in Challenger?).
+  </p>
+  <h6> Why does the champion I selected appear in multiple roles? </h6>
+  <p>
+  Recommendations for the same champion are included if that champion is played in another role. For example, the recommendations for top Quinn reveal that top-lane Quinn players are dedicated enough to also play Quinn in the mid, jungle, and adc roles. Along those same lines, top-lane Teemo players will play Teemo in any role except adc...
+  </p>
+<!--   <h4> Does this include data from the newest champions? </h4>
+  <p>
+  Nope! In fact, this data is from last season! It would be pretty cool to do a better version of this analysis on newer data.
+  </p>
+  <h4> Why are there so few recommendations for _____? </h4>
+  <p>
+  While I do have data from ~140k players, my algorithm only considers the subset of players who play both the selected champion X in role A and the recommended champion Y in role B more than average. Additionally, recommendations are only included if the player has: 1) played a minimum number of games in both roles, 2) played a minimum number of games on champion X in role A, and 3) played a minimum fraction of their games on champion X in role A. These restrictions help amplify the signal from players who main your role and your champion.
+  </p>
+   <h4> Technical question: why not just use the Pearson correlation? </h4>
+  <p>
+  The Pearson correlation is great, but it includes some data that might not be relevant. For example, if a player plays both champions X and Y less than average, this player's contribution to the sample Pearson correlation coefficient r would be positive (and hence, they would "recommend" Y to people who play X). This is not good. Additionally, a one- or two-trick pony who plays a champion significantly more than the average will have a larger contribution to r and would therefore skew the recommendations to their playstyle. The current method avoids both of these issues.
+  </p> -->
+</div>
+{% endif %}
+<div class="center-block" style="width:600px; padding: 0 0 0 0;">
+<center>
+	<h6> For more details on the recommendation algorithm, please see this <a href="http://cpierse.physics.ucsd.edu/champ_recs_post/"> post</a>. </h6>
+</center>
+</div>
+
+<!-- Testing:
+<img src="{{result['TOP']['1']['img_loc_url']}}" align="middle" width="120px"\> -->
+
+</html>
