@@ -13,7 +13,7 @@ try:
     template_name = sys.argv[1]
     print(template_name)
 except IndexError:
-    template_name = 'view_bootstrap_cent_score'
+    template_name = 'view_bootstrap_cent_rating'
     print(template_name)
 
 if 'flask' in template_name and 'bootstrap' in template_name:
