@@ -6,7 +6,7 @@ The core of the code is broken down into four pieces: collectStaticData.py, getT
 ### Prerequisites
 This code uses the [Riot-Watcher](https://github.com/pseudonym117/Riot-Watcher) Python wrapper for Riot's API. You will also need an API key from Riot Games which can be acquired [here](https://developer.riotgames.com/).
 
-### The core of the algorithm:
+### The core of the algorithm
 - collectStaticData.py - downloads champion images and builds a dictionary that map champion ids to names.
 - getTierIds.py - iterates through player ids and sorts them based on the ranked tier of the player. 
 - getGameData.py - collects game data from the players that were identified in getTierIds. 
