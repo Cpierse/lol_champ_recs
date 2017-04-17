@@ -4,7 +4,7 @@ A champion recommendation system for the online game League of Legends. For deta
 The core of the code is broken down into four pieces: collectStaticData.py, getTierIds.py, getGameData.py, and champAnalysis.py. Each piece is detailed below.
 
 ### Prerequisites
-This code uses the [Riot-Watcher](https://github.com/pseudonym117/Riot-Watcher) Python wrapper for Riot Games's API to communicate with Riot's servers. You will also need an API key from Riot Games
+This code uses the [Riot-Watcher](https://github.com/pseudonym117/Riot-Watcher) Python wrapper for Riot's API. You will also need an API key from Riot Games which can be acquired [here](https://developer.riotgames.com/).
 
 ### The core of the algorithm:
 - collectStaticData.py - downloads champion images and builds a dictionary that map champion ids to names.
