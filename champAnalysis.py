@@ -14,20 +14,12 @@ import json, io
 import numpy as np
 import copy, operator
 import os
-
 import matplotlib.pyplot as plt
 from scipy.stats import expon, ttest_ind
 
 
-with open('id2champ.json', 'r') as fp:
-    id2champ = json.load(fp)
-with open('champ2id.json', 'r') as fp:
-    champ2id = json.load(fp)
-champs = sorted(champ2id.keys())
-roles = ['TOP','JUNGLE','MID','ADC','SUPPORT']
 
-with open('SummData.json', 'r') as fp:
-    summ_data = json.load(fp)
+
 #%% Key constants:
 MIN_FRAC_ROLE = 0.20
 MIN_FRAC_CHAMP_ROLE = 0.10
@@ -35,6 +27,21 @@ MIN_N_GAMES_MAIN_ROLE = 20
 MIN_N_GAMES_OFF_ROLE = 10
 MIN_N_GAMES_CHAMP = 10
 N_RECS = 12
+
+summ_data_file_name = 'SummData2017.json' #'SummData.json'
+rec_file_name = 'Recs2017.json'
+
+#%% Load relevant data:
+with open('id2champ.json', 'r') as fp:
+    id2champ = json.load(fp)
+with open('champ2id.json', 'r') as fp:
+    champ2id = json.load(fp)
+champs = sorted(champ2id.keys())
+roles = ['TOP','JUNGLE','MID','ADC','SUPPORT']
+
+# Load summoner data:
+with open(summ_data_file_name, 'r') as fp:
+    summ_data = json.load(fp)
 
 #%% Convert each summoner into a dict of champ counts in each role.
 summ_role_counts = {}
@@ -243,7 +250,7 @@ for tier in recs:
 
 
 # Save the final recs:
-with io.open('AllRecs.json', 'w', encoding='utf-8') as fp: 
+with io.open('All'+rec_file_name, 'w', encoding='utf-8') as fp: 
     fp.write(unicode(json.dumps(recs, ensure_ascii=False)))
 
 
@@ -327,7 +334,6 @@ def rate_recs(role1,champ1,single_counts = source_dict==single_count_recs, count
     return score_dict
 
 
-
 # Add this info to the current recommendations:
 # Also create a top 3 truncated version for publishing online:
 pub_recs = copy.deepcopy(recs)
@@ -347,14 +353,13 @@ for tier in recs:
 
 
 # Save the final recs:
-with io.open('AllRecs.json', 'w', encoding='utf-8') as fp: 
+with io.open('All'+rec_file_name, 'w', encoding='utf-8') as fp: 
     fp.write(unicode(json.dumps(recs, ensure_ascii=False)))
 
-with io.open('Recs.json', 'w', encoding='utf-8') as fp: 
+with io.open(rec_file_name, 'w', encoding='utf-8') as fp: 
     fp.write(unicode(json.dumps(pub_recs, ensure_ascii=False)))
 
-#%% Additional analysis:
-
+#%% Plotting the play frequency for different champions:
 # Function to plot the play rate distributions:
 def plot_play_freq(roles,champs,tier='GOLD',plot_zeros = False, save_fig=False, multi_plot = False):  
     """
@@ -473,9 +478,7 @@ plot_play_freq(roles,5,save_fig=True, multi_plot=True)
 
 
 
-# Play rate distribution:
-
-
+#%% Random work in progress:
 
 # Recs for specific champ
 recs[tier]['TOP'][str(champ2id['Quinn'])]
@@ -498,8 +501,8 @@ def quick_bin_confidence(N_players, N_recs, z=1.96):
     N_max = N_recs + round(N_recs*delta)
     return N_min, N_max    
 
-quick_bin_confidence(recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['N'],
-                     recs[tier]['TOP'][str(champ2id['Darius'])]['TOP'][1]['score'])
+#quick_bin_confidence(recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['N'],
+#                     recs[tier]['TOP'][str(champ2id['Darius'])]['TOP'][1]['score'])
 
 # How about a t-test based on this assumption?
 def quick_t_test(N_players,champ1_data,champ2_data):
@@ -507,15 +510,15 @@ def quick_t_test(N_players,champ1_data,champ2_data):
     champ2_data += [0]*(N_players-len(champ2_data))
     return ttest_ind(champ1_data,champ2_data,equal_var=False)
 
-t_score = quick_t_test(recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['N'], 
-             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Garen'])],
-             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Nasus'])])
-
-
-t_score = quick_t_test(recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['N'], 
-             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Garen'])],
-             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Olaf'])])
-
+#t_score = quick_t_test(recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['N'], 
+#             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Garen'])],
+#             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Nasus'])])
+#
+#
+#t_score = quick_t_test(recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['N'], 
+#             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Garen'])],
+#             sliding_count_recs[tier]['TOP'][str(champ2id['Darius'])]['TOP']['DATA'][str(champ2id['Olaf'])])
+#
 
 
 # More detailed t-test function:
@@ -542,161 +545,20 @@ def t_test_ex(role1,champ1,single_counts=False):
             print( role2 + ' ' + id2champ[champ2_1] + ' p-values: ' +  values[0] + ', ' + values[1] + ', ' + values[2])
         print('-----------------------------------------------------------------------------')
 
-t_test_ex('TOP','Darius')
-t_test_ex('TOP','Darius',single_counts=True)
-
-t_test_ex('MID','Lux')
-t_test_ex('MID','Lux',single_counts=True)
-
-t_test_ex('ADC','Caitlyn')
-t_test_ex('ADC','Caitlyn',single_counts=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Function to plot the play rate distributions of one or multiple champions
-#def plot_play_freq(roles,champs,tier='GOLD',plot_zeros = False, save_fig=False):  
-#    """
-#    Plots the play frequency of given champs in given roles. Both roles and
-#    champs can be lists or a single string. 
-#    """
-#    # Convert to lists if just one champion
-#    if type(roles)==str: roles = [roles]
-#    if type(champs)==str: champs = [champs]
-#    role_pos = 0 # Keep track of current role position
-#    for role1 in roles:
-#        champ_pos = 0 # Keep track of current champ position
-#        for champ1 in champs:
-#            # Convert input to strings our dictionary can use:
-#            champ1_name = None
-#            if type(champ1) == str:
-#                if champ1 in champ2id:
-#                    champ1_name = champ1
-#                    champ1 = int(champ2id[champ1])
-#                else:
-#                    champ1 = int(champ1)
-#            if not champ1_name:
-#                champ1_name = id2champ[str(champ1)]
-#            # Get play frequency for every summoner:
-#            play_freq = []
-#            for sid in summ_role_freq[tier].keys():
-#                if role1 not in summ_role_counts[tier][sid]:
-#                    continue
-#                n_games_role = sum(summ_role_counts[tier][sid][role1].values())
-#                n_games = np.sum(np.sum( [summ_role_counts[tier][sid][x].values() for x in summ_role_counts[tier][sid].keys()]))
-#                role_freq = np.array(n_games_role,float)/n_games
-#                if role_freq<MIN_FRAC_ROLE or n_games_role<MIN_N_GAMES_MAIN_ROLE:
-#                    continue
-#                if champ1 in summ_role_freq[tier][sid][role1]:
-#                    play_freq.append(summ_role_freq[tier][sid][role1][champ1])
-#                else:
-#                    play_freq.append(0.0)
-#            # Plot the play frequencies in a histogram:
-#            play_freq = np.array(play_freq)
-#            print(champ1_name + ': ' +  str(np.mean(play_freq)))
-#            if plot_zeros:
-#                plt.hist(play_freq,bins=20)
-#            else:
-#                plt.hist(play_freq[play_freq>0],bins=20)
-#            plt.title(role1.capitalize() + ' ' + champ1_name)
-#            plt.xlabel('In-role play frequency')
-#            plt.ylabel('Count')
-#            if save_fig:
-#                plt.savefig('play_freq_plots\\'+ role1.capitalize() + '_' + str(pos+1) + '_' + champ1_name + '.png',dpi=300)
-#            plt.show()
-#            champ_pos+=1
-#        role_pos+=1
+#t_test_ex('TOP','Darius')
+#t_test_ex('TOP','Darius',single_counts=True)
+#
+#t_test_ex('MID','Lux')
+#t_test_ex('MID','Lux',single_counts=True)
+#
+#t_test_ex('ADC','Caitlyn')
+#t_test_ex('ADC','Caitlyn',single_counts=True)
 #
 #
 #
-## Function to plot the play rate distributions in a multiplot
-#def plot_top_freqs(roles,N,tier='GOLD',plot_zeros = False, save_fig=False):  
-#    """
-#    Plots the play frequency of the top N champs in the given roles.
-#    """
-#    # Number of summoners:
-#    N_summs = len(summ_role_freq[tier])
-#    # If champs is an integer, grab top champions
-#    champs = [0]*np.floor(100,N*2)
-#    f, axarr = plt.subplots(len(roles),len(champs))
-#    role_pos = 0 # Keep track of current role position
-#    for role1 in roles:
-#        # Grab the top N*2 from play_freq, which does not include the zeros
-#        # We will take the top N from this array
-#        top_N = sorted(role_champ_freq[tier][role1].iteritems(), key=operator.itemgetter(1), reverse=True)[0:N]
-#        champs = [int(x[0]) for x in top_N]
-#        play_freq = [ []*len(champs)  ]
-#        # Iterate through champs:
-#        champ_pos = 0 # Keep track of current champ position
-#        y_max = 0 # For keeping track of axis in multiplot
-#        for champ1 in champs:
-#            # Convert input to strings our dictionary can use:
-#            champ1_name = None
-#            if type(champ1) == str:
-#                if champ1 in champ2id:
-#                    champ1_name = champ1
-#                    champ1 = int(champ2id[champ1])
-#                else:
-#                    champ1 = int(champ1)
-#            if not champ1_name:
-#                champ1_name = id2champ[str(champ1)]
-#            # Get play frequency for every summoner:
-#            play_freq = []
-#            for sid in summ_role_freq[tier].keys():
-#                if role1 not in summ_role_counts[tier][sid]:
-#                    continue
-#                n_games_role = sum(summ_role_counts[tier][sid][role1].values())
-#                n_games = np.sum(np.sum( [summ_role_counts[tier][sid][x].values() for x in summ_role_counts[tier][sid].keys()]))
-#                role_freq = np.array(n_games_role,float)/n_games
-#                if role_freq<MIN_FRAC_ROLE or n_games_role<MIN_N_GAMES_MAIN_ROLE:
-#                    continue
-#                if champ1 in summ_role_freq[tier][sid][role1]:
-#                    play_freq.append(summ_role_freq[tier][sid][role1][champ1])
-#                else:
-#                    play_freq.append(0.0)
-#            # Plot the play frequencies in a histogram:
-#            play_freq = np.array(play_freq)
-#            print(champ1_name + ': ' +  str(np.mean(play_freq)))
-#            fig = axarr[role_pos,champ_pos]
-#            fig.hist(play_freq[play_freq>0],bins=20)
-#            y_max = max([y_max,fig.get_ylim()[1]]) 
-#            champ_avg_freq[champ_pos] = np.mean(play_freq)
-#            champ_pos+=1
-#        # Sort the champs to take the top 5:
-#        champ_avg_freq = 
-#        # Make sure axes are all the same:
-#        for champ_pos in range(0,len(champs)):
-#            fig = axarr[role_pos,champ_pos]
-#            fig.set_ylim([0,y_max])
-#            fig.text(0.95,0.95*y_max,id2champ[str(champs[champ_pos])],ha='right',va='top',fontsize=6)
-#            fig.xaxis.set_ticks([0, 0.5, 1])
-#            fig.yaxis.set_ticks([0,0.25*y_max,0.5*y_max,0.75*y_max, y_max])
-#            if champ_pos == 0:
-#                if role_pos == np.round(float(len(roles))/2):
-#                    fig.set_ylabel('Count',fontsize=6)
-#                #fig.yaxis.set_tick_params(labelsize=6,size=2)
-#            else:
-#                fig.yaxis.set_ticklabels([])
-#            if role_pos == len(roles)-1:
-#                if champ_pos == np.round(float(len(champs))/2):
-#                    fig.set_xlabel('In-role play frequency',fontsize=6)
-#                #fig.xaxis.set_tick_params(labelsize=6,size=2)
-#            else:
-#                fig.xaxis.set_ticklabels([])
-#            fig.tick_params(axis='both', which='minor', labelsize=4,size=2)
-#            fig.tick_params(axis='both', which='major', labelsize=4,size=2)
-#        role_pos+=1
-#    if save_fig:
-#        plt.savefig('play_freq_plots\\multiplot.png',dpi=300)
-#
+
+
+
+
+
+

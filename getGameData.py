@@ -24,13 +24,13 @@ LOAD_PREV_DATA = True
 TIER = 'GOLD'
 SEASON = 'SEASON2016'
 QUEUE = 'TEAM_BUILDER_DRAFT_RANKED_5x5'
-Summ_data_file_name = 'SummData.json'
+summ_data_file_name = 'SummData.json'
 
 # Changes for 2017:
 LOAD_PREV_DATA = True
 SEASON = 'PRESEASON2017'
 QUEUE = 'TEAM_BUILDER_RANKED_SOLO, RANKED_FLEX_SR' 
-Summ_data_file_name = 'SummData2017.json'
+summ_data_file_name = 'SummData2017.json'
 
 api_broken = True
 queues = ['TEAM_BUILDER_RANKED_SOLO', 'RANKED_FLEX_SR'] 
@@ -40,7 +40,7 @@ year = 2017
 # Initialize the main dictionary. This will be of the format:
 # summ_data = {TIER:{ID:{Role:[Champs]}}}
 if LOAD_PREV_DATA:
-    with open(Summ_data_file_name, 'r') as fp:
+    with open(summ_data_file_name, 'r') as fp:
         summ_data = json.load(fp)
 else:
     summ_data = {}
@@ -92,7 +92,7 @@ for failure_runs in range(0,10000):
             print('Success: '  + str(tiers[TIER][index]) + ' - ' + str(len(ml['matches'])) + ' matches')
             if count%100 == 0:
                 print('Currently at ' + str(len(summ_data[TIER])) + ' summoners of ' + str(len(tiers[TIER])) + '.')
-                with io.open(Summ_data_file_name, 'w', encoding='utf-8') as fp: 
+                with io.open(summ_data_file_name, 'w', encoding='utf-8') as fp: 
                     fp.write(unicode(json.dumps(summ_data, ensure_ascii=False)))
             # The API requests are sometimes more than one. So sleep for 2x.
             time.sleep(1.10*DeltaT) 
