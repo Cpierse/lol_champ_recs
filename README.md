@@ -1,5 +1,6 @@
 # lol_champ_recs
-A champion recommendation system for the online game League of Legends. For details on the algorithm, please see this [post](http://cpierse.physics.ucsd.edu/champ_recs_post/).
+A champion recommendation system for the online game League of Legends. For details on the algorithm, please see this [post](http://cpierse.physics.ucsd.edu/champ_recs_post/). The most recent version of this algorithm is implemented  [here](http://cpierse.pythonanywhere.com/champ_recs).
+
 ## Components
 The core of the code is broken down into four pieces: collectStaticData.py, getTierIds.py, getGameData.py, and champAnalysis.py. Each piece is detailed below.
 
