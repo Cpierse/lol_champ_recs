@@ -16,3 +16,4 @@ This code uses the [Riot-Watcher](https://github.com/pseudonym117/Riot-Watcher) 
 ### Other notes
 - The last section of champAnalysis.py is for the general analysis of  game data. Feel free to comment and ignore this section. 
 - sqlSave.py converts the saved game data from json to a sql database. 
+- ipLogSummary.py reads a text file of ip addresses and counts the number of times each unique address made a request. 
