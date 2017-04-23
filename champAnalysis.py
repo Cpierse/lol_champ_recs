@@ -15,7 +15,7 @@ import numpy as np
 import copy, operator
 import os
 import matplotlib.pyplot as plt
-from scipy.stats import expon, ttest_ind
+from scipy.stats import expon, ttest_ind, chi2_contingency
 
 
 
@@ -256,8 +256,8 @@ with io.open('All'+rec_file_name, 'w', encoding='utf-8') as fp:
 
 #%% Creating a recommendation rating based on t-test:
 def get_p_vals(role1,champ1,single_counts=True,span=3):
-    # Use a t-test to calculate p-values for recommendation distirbutions for
-    # the top 3 champs vs the next 3 recommendations.
+    # Use a chi-squared test to calculate p-values to compare the recommendation 
+    # distributions for the top 3 champs vs the next few recommendations.
     champ1=str(champ2id.get(champ1,champ1))
     p_vals = {}
     for role2 in recs[tier][role1][champ1]:
@@ -272,16 +272,17 @@ def get_p_vals(role1,champ1,single_counts=True,span=3):
                 champ2_2 = str(champ2id[recs[tier][role1][champ1][role2][pos_to_compare]['champ']])
                 # Get data:
                 N = recs[tier][role1][champ1][role2]['N']
-                if N > 0:
+                if N > 10:
                     data = sliding_count_recs[tier][role1][champ1][role2]
                     champ2_1_data = np.array(data['DATA'][champ2_1] + [0]*(N-len(data['DATA'][champ2_1])))
                     champ2_2_data = np.array(data['DATA'][champ2_2] + [0]*(N-len(data['DATA'][champ2_2])))
                     if single_counts:
                         champ2_1_data[champ2_1_data>0]=1
                         champ2_2_data[champ2_2_data>0]=1
-                    values.append(ttest_ind(champ2_1_data,champ2_2_data,equal_var=False)[1])
+                    contingency_mat = np.array([[sum(champ2_1_data), N-sum(champ2_1_data)],[sum(champ2_2_data),N-sum(champ2_2_data)]])
+                    values.append(chi2_contingency(contingency_mat)[1])
                 else:
-                    values.append(0)
+                    values.append(1)
             p_vals[role2][idx] = values
     return p_vals
 
